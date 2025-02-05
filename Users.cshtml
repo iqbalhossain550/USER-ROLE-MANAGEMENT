@@ -1,0 +1,1080 @@
+﻿@using System.Data
+@using System.Collections
+@using Connection
+@using System.Data
+@using System.Collections
+@using Connection
+@using USERMANAGEMENT.Models
+@using USERMANAGEMENT.Models.SetUp
+@using USERMANAGEMENT.Models.UserManagement
+
+@{
+    ViewBag.Title = "User Creation";
+
+    List<UsersModel> usersList = new List<UsersModel>();
+    List<UsersRoleModel> usersRoleList = new List<UsersRoleModel>();
+    List<UsersTypeModel> userTypeList = new List<UsersTypeModel>();
+    // List<SiteListDataModel> siteList = new List<SiteListDataModel>();
+    List<OrganizationListModel> organizationList = new List<OrganizationListModel>();
+    List<EmployeeInfoModel> EmployeeInfoModel = new List<EmployeeInfoModel>();
+
+    if (ViewBag.usersList != null)
+    {
+        usersList = ViewBag.usersList;
+    }
+    //if (ViewBag.siteList != null)
+    //{
+    //    siteList = ViewBag.siteList;
+    //}
+
+    if (ViewBag.usersRoleList != null)
+    {
+        usersRoleList = ViewBag.usersRoleList;
+    }
+
+    if (ViewBag.userTypeList != null)
+    {
+        userTypeList = ViewBag.userTypeList;
+    }
+
+    if (ViewBag.organizationList != null)
+    {
+        organizationList = ViewBag.organizationList;
+    }
+
+    if (ViewBag.EmployeeInfoModel != null)
+    {
+        EmployeeInfoModel = ViewBag.EmployeeInfoModel;
+    }
+
+
+    string userCode = string.Empty;
+    DataTable dtLoginData = new DataTable();
+
+    if (Session["dtLoginData"] != null)
+    {
+        dtLoginData = (DataTable)Session["dtLoginData"];
+    }
+
+    if (dtLoginData.Rows.Count > 0)
+    {
+        ViewBag.userCode = Convert.ToString(dtLoginData.Rows[0]["USER_CODE"]);
+    }
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="main-content">
+    <div class="main-content-inner">
+        <input type="hidden" id="user_code" value="@(ViewBag.userCode)">
+        <div class="page-content">
+            <div class="page-header">
+                <h1>
+                    User
+                    <small>
+                        <i class="ace-icon fa fa-angle-double-right"></i>
+                        User Entry
+                    </small>
+                </h1>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <form id="login_form">
+                        <div class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="user_type"> User Type: </label>
+                                <div class="col-sm-3">
+                                    <select name="user_type" id="user_type" class="col-xs-12 col-sm-12 user_type select_search">
+                                        <option value=""> Select User Type</option>
+                                        @{
+                                            for (int i = 0; i < userTypeList.Count; i++)
+                                            {
+                                                <option value="@userTypeList[i].USER_TYPE_ID">@userTypeList[i].USER_TYPE_DESCR</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="emp_code" id="EMPLVL" style="display:none"> Employee Name: </label>
+                                <div class="col-sm-3" id="EMPLIST" style="display:none">
+                                    <select name="emp_code" id="emp_code" class="col-xs-12 col-sm-12 emp_code select_search">
+                                        <option value=''>Select Employee</option>
+                                        @{
+                                            for (int i = 0; i < EmployeeInfoModel.Count; i++)
+                                            {
+                                                <option value="@EmployeeInfoModel[i].EMP_CODE">@EmployeeInfoModel[i].FULL_NAME</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="full_name"> Full Name: </label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="full_name" id="full_name" class="col-xs-12 col-sm-12 full_name" value="" maxlength="200" placeholder="Example: Md.Nazmuzzaman">
+                                </div>
+
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="user_name"> User Name: </label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="user_name" id="user_name" class="col-xs-12 col-sm-12 user_name" value="" maxlength="20" placeholder="Example: Sourab">
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="email"> Email Address: </label>
+                                <div class="col-sm-3">
+                                    <input type="email" name="email" id="email" class="col-xs-12 col-sm-12 email" value="" maxlength="100" placeholder="Example: sourab@gmail.com" autocomplete="off">
+
+                                </div>
+
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="user_role"> User Role: </label>
+                                <div class="col-sm-3">
+                                    <select name="user_role" id="user_role" class="col-xs-12 col-sm-12 user_role select_search">
+                                        <option value=""> Select User Role</option>
+                                        @{
+                                            for (int i = 0; i < usersRoleList.Count; i++)
+                                            {
+                                                <option value="@usersRoleList[i].ROLE_ID">@usersRoleList[i].ROLE_DESCR</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="password"> Password: </label>
+                                <div class="col-sm-3">
+                                    <input type="password" name="password" id="password" class="col-xs-12 col-sm-12 password" value="" maxlength="20" placeholder="Example: Abc@2288">
+                                    <img src="../Image/EyeOpen.png" class="eye-image" id="togglePassword">
+
+                                </div>
+
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="confirm_password"> Confirm Password: </label>
+                                <div class="col-sm-3">
+                                    <input type="password" name="confirm_password" id="confirm_password" class="col-xs-12 col-sm-12 confirm_password" value="" maxlength="20" placeholder="Example: Abc@2288">
+                                    <img src="../Image/EyeOpen.png" class="eye-image2" id="togglePassword2">
+                                </div>
+                            </div>
+
+                            <!-- Validation Message -->
+                            <div id="message">
+                                <h4>Password must contain the following:</h4>
+                                <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
+                                <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
+                                <p id="number" class="invalid">A <b>number</b></p>
+                                <p id="special_char" class="invalid">A <b>special characters</b></p>
+                                <p id="length" class="invalid">Minimum <b>8 characters</b></p>
+
+                            </div>
+
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label no-padding-right requiredicon" for="mobile"> Phone Number: </label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="mobile" id="mobile" class="col-xs-12 col-sm-12 mobile" value="" onkeypress='return isNumber(event)' placeholder="Example: 017XXXXXXXX">
+                                </div>
+                            </div>
+
+                            <div class="form-group hidden">
+                                <label class="col-sm-3 control-label no-padding-right" for="org_name"> Organization Name: </label>
+                                <div class="col-sm-3">
+                                    <select name="org_name" id="org_name" class="col-xs-12 col-sm-12 org_name select_search">
+                                        <option value=""> Select Organization</option>
+                                        @{
+                                            for (int i = 0; i < organizationList.Count; i++)
+                                            {
+                                                <option value="@organizationList[i].ORG_CODE">@organizationList[i].ORG_NAME</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9 col-sm-offset-3">
+                                    <button type="submit" class="btn btn-sm btn-success" id="saveUser"><i class="fa fa-check-square-o"></i> Save</button>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table id="table_data" class="table table-bordered table-striped table-condensed table-hover data_table">
+                            <thead>
+                                <tr>
+                                    <th class="hidden"></th>
+                                    <th>Full <br /> Name</th>
+                                    <th>User <br /> Name</th>
+                                    <th>Email Address</th>
+                                    <th>Phone <br /> Number</th>
+                                    <th class="hidden"></th>
+                                    <th>Role <br /> Name</th>
+                                    <th class="hidden"></th>
+                                    <th>User <br /> Type</th>
+                                    <th class="hidden"></th>
+                                    <th>Organization <br /> Name</th>
+                                    <th class="hidden"></th>
+                                    <th class="hidden"></th>
+                                    <th style="text-align: center; border: 1px solid #ddd;" id="action">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (usersList.Count > 0)
+                                    {
+                                        for (int i = 1; i <= usersList.Count; i++)
+                                        {
+                                            <tr>
+                                                <td class="hidden">
+                                                    <input value="@usersList[i-1].USER_ID" />
+                                                </td>
+                                                <td>
+                                                    @usersList[i - 1].FULL_NAME
+                                                    <input type="text" class="hidden" value="@usersList[i-1].FULL_NAME" />
+                                                </td>
+                                                <td>
+                                                    @usersList[i - 1].USER_NAME
+                                                    <input type="text" class="hidden" value="@usersList[i-1].USER_NAME" />
+                                                </td>
+                                                <td>
+                                                    @usersList[i - 1].EMAIL
+                                                    <input type="text" class="hidden" value="@usersList[i-1].EMAIL" />
+                                                </td>
+                                                <td>
+                                                    @usersList[i - 1].MOBILE_NO
+                                                    <input type="text" class="hidden" value="@usersList[i-1].MOBILE_NO" />
+                                                </td>
+                                                <td class="hidden">
+                                                    <input type="text" value="@usersList[i-1].ROLE_ID" />
+                                                </td>
+                                                <td>
+                                                    @usersList[i - 1].ROLE_NAME
+                                                    <input type="text" class="hidden" value="@usersList[i-1].ROLE_NAME" />
+                                                </td>
+                                                <td class="hidden">
+                                                    <input type="text" class="hidden" value="@usersList[i-1].USER_TYPE_ID" />
+                                                </td>
+                                                <td>
+                                                    @usersList[i - 1].USER_TYPE_DESCR
+                                                    <input type="text" class="hidden" value="@usersList[i-1].USER_TYPE_DESCR" />
+                                                </td>
+                                                <td class="hidden">
+                                                    <input type="text" class="hidden" value="@usersList[i-1].ORG_CODE" />
+                                                </td>
+                                                <td>
+                                                    @usersList[i - 1].ORG_NAME
+                                                    <input type="text" class="hidden" value="@usersList[i-1].ORG_NAME" />
+                                                </td>
+
+                                                <td class="hidden">
+                                                    <input type="text" value="0" />
+                                                </td>
+                                                <td class="hidden">
+                                                    <input type="text" value="@i" />
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a href="#edit_form" data-toggle="modal" class="btn btn-sm btn-primary blue" onclick="editUser(@i)">
+                                                        <span class="fa fa-pencil-square-o"></span> Edit
+                                                    </a>
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="edit_form" class="modal edit_form" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="blue bigger">
+                    User
+                    <small>
+                        <i class="ace-icon fa fa-angle-double-right"></i>
+                        User Edit
+                    </small>
+                </h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12">
+                        <form id="edit_login_form">
+                            <div class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label no-padding-right requiredicon" for="edit_full_name"> Full Name: </label>
+                                    <div class="col-sm-6">
+                                        <input type="hidden" name="user_id" id="user_id" class="col-xs-12 col-sm-12 user_id" value="">
+                                        <input type="text" name="edit_full_name" id="edit_full_name" class="col-xs-12 col-sm-12 edit_full_name" value="" maxlength="200" placeholder="Example: Md.Nazmuzzaman">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label no-padding-right requiredicon" for="edit_user_name"> Username: </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="edit_user_name" id="edit_user_name" class="col-xs-12 col-sm-12 edit_user_name" value="" maxlength="30" placeholder="Example: Sourab" disabled>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label no-padding-right requiredicon" for="edit_email"> Email Address: </label>
+                                    <div class="col-sm-6">
+                                        <input type="email" name="edit_email" id="edit_email" class="col-xs-12 col-sm-12 edit_email" value="" maxlength="100" placeholder="Example: sourab@gmail.com">
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label no-padding-right requiredicon" for="edit_user_role"> User Role: </label>
+                                    <div class="col-sm-6">
+                                        <select name="edit_user_role" id="edit_user_role" class="user_role select-search" disabled>
+                                            <option value=""> Select User Role</option>
+                                            @{
+                                                for (int i = 0; i < usersRoleList.Count; i++)
+                                                {
+                                                    <option value="@usersRoleList[i].ROLE_ID">@usersRoleList[i].ROLE_DESCR</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label no-padding-right requiredicon" for="edit_mobile"> Phone Number: </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="edit_mobile" id="edit_mobile" class="col-xs-12 col-sm-12 edit_mobile" value="" placeholder="Example: 017XXXXXXXX">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label no-padding-right requiredicon" for="edit_user_type"> User Type: </label>
+                                    <div class="col-sm-6">
+                                        <select name="edit_user_type" id="edit_user_type" class="col-xs-12 col-sm-12 edit_user_type select-search" disabled>
+                                            <option value=""> Select User Type</option>
+                                            @{
+                                                for (int i = 0; i < userTypeList.Count; i++)
+                                                {
+                                                    <option value="@userTypeList[i].USER_TYPE_ID">@userTypeList[i].USER_TYPE_DESCR</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group hidden">
+                                    <label class="col-sm-3 control-label no-padding-right" for="edit_org_name"> Organization Name: </label>
+                                    <div class="col-sm-6">
+                                        <select name="edit_org_name" id="edit_org_name" class="col-xs-12 col-sm-12 edit_org_name select-search">
+                                            <option value=""> Select Organization</option>
+                                            @{
+                                                for (int i = 0; i < organizationList.Count; i++)
+                                                {
+                                                    <option value="@organizationList[i].ORG_CODE">@organizationList[i].ORG_NAME</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-9 col-sm-offset-3">
+
+                                        <input type="hidden" id="editing_row" />
+                                        <div class="space-4"></div>
+
+                                        <button class="btn btn-sm btn-danger" data-dismiss="modal">
+                                            <i class="ace-icon fa fa-times"></i> Cancel
+                                        </button>
+
+                                        <button type="submit" class="btn btn-sm btn-primary" id="updateUser">
+                                            <i class="ace-icon fa fa-check"></i> Update
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+
+<script>
+    const togglePassword =
+        document.querySelector('#togglePassword');
+    const togglePassword2 =
+        document.querySelector('#togglePassword2');
+
+    const password =
+        document.querySelector('#password');
+
+    const confirmpassword =
+        document.querySelector('#confirm_password');
+
+    togglePassword.
+        addEventListener('click', function (e) {
+
+            // Toggle the type attribute
+            const type = password.getAttribute(
+                'type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // Toggle the eye slash icon
+            if (togglePassword.src.match(
+                "../Image/EyeClose.png")) {
+                togglePassword.src =
+                    "../Image/EyeOpen.png";
+            } else {
+                togglePassword.src =
+                    "../Image/EyeClose.png";
+            }
+        });
+
+    togglePassword2.
+        addEventListener('click', function (e) {
+
+            // Toggle the type attribute
+            const confirmtype = confirmpassword.getAttribute(
+                'type') === 'password' ? 'text' : 'password';
+            confirmpassword.setAttribute('type', confirmtype);
+
+            // Toggle the eye slash icon
+            if (togglePassword2.src.match("../Image/EyeClose.png")) {
+                togglePassword2.src = "../Image/EyeOpen.png";
+            } else {
+                togglePassword2.src = "../Image/EyeClose.png";
+            }
+        });
+
+</script>
+<script>
+    var myInput = document.getElementById("password");
+    var letter = document.getElementById("letter");
+    var capital = document.getElementById("capital");
+    var number = document.getElementById("number");
+    var length = document.getElementById("length");
+    var special_char = document.getElementById("special_char");
+    var isPasswordValid = false;
+
+    // When the user clicks on the password field, show the message box
+    myInput.onfocus = function () {
+        document.getElementById("message").style.display = "block";
+    }
+
+    // When the user clicks outside of the password field, hide the message box
+    myInput.onblur = function () {
+        document.getElementById("message").style.display = "none";
+    }
+
+    // When the user starts to type something inside the password field
+    myInput.onkeyup = function () {
+        validatePassword();
+    }
+    // Password validation function
+    function validatePassword() {
+        var password = $('#password').val();
+        var isValid = true;
+
+        // Validate lowercase letters
+        if (/[a-z]/.test(password)) {
+            $('#letter').removeClass('invalid').addClass('valid');
+        } else {
+            $('#letter').removeClass('valid').addClass('invalid');
+            isValid = false;
+        }
+
+        // Validate uppercase letters
+        if (/[A-Z]/.test(password)) {
+            $('#capital').removeClass('invalid').addClass('valid');
+        } else {
+            $('#capital').removeClass('valid').addClass('invalid');
+            isValid = false;
+        }
+
+        // Validate numbers
+        if (/[0-9]/.test(password)) {
+            $('#number').removeClass('invalid').addClass('valid');
+        } else {
+            $('#number').removeClass('valid').addClass('invalid');
+            isValid = false;
+        }
+
+        // Validate special characters
+        if (/[^a-zA-Z0-9]/.test(password)) {
+            $('#special_char').removeClass('invalid').addClass('valid');
+        } else {
+            $('#special_char').removeClass('valid').addClass('invalid');
+            isValid = false;
+        }
+
+        // Validate length
+        if (password.length >= 8) {
+            $('#length').removeClass('invalid').addClass('valid');
+        } else {
+            $('#length').removeClass('valid').addClass('invalid');
+            isValid = false;
+        }
+
+        return isValid; // Returns true if all criteria are met, false otherwise
+    }
+</script>
+
+
+<script>
+    $("#user_type").change(function () {
+        var user_type = $('#user_type :selected').val();
+
+        if (user_type == '2') {
+            $('#EMPLVL').show();
+            $('#EMPLIST').show();
+
+
+        }
+        else {
+            $('#EMPLVL').hide();
+            $('#EMPLIST').hide();
+        }
+
+    });
+
+</script>
+
+
+
+
+<script>
+
+    $("#emp_code").change(function () {
+        var emp_code = $('#emp_code :selected').val();
+        SetEmpGridData(emp_code);
+
+    });
+
+    //  SET EMPLOYEE DATA
+    function SetEmpGridData(emp_code) {
+        $.ajax({
+            url: '/Users/ShowEmpData',
+            type: 'POST',
+            data: { 'emp_code': emp_code },
+            success: function (data) {
+                if (data != '') {
+                    var markup = "";
+                    var markup1 = "";
+                    var markup2 = "";
+                    var markup3 = "";
+                    for (var x = 0; x < data.length; x++) {
+                        markup += data[x].EMP_CODE;
+                        markup1 += data[x].FULL_NAME;
+                        markup2 += data[x].GMAIL;
+                        markup3 += data[x].PHONE_NO;
+
+                    }
+                    $("#user_name").val(markup).show();
+                    $("#full_name").val(markup1).show();
+                    $("#email").val(markup2).show();
+                    $("#mobile").val(markup3).show();
+                }
+                else {
+                    var markup = "<option value=''>Select Employee</option>";
+                    $("#emp_code)").html(markup).show();
+                }
+            },
+            error: function () {
+                swal("error");
+            }
+        });
+    }
+
+
+</script>
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#password").attr("autocomplete", "new-password");
+    });
+
+    $("#login_form").validate({
+        rules: {
+            full_name: {
+                required: true,
+            },
+            user_name: {
+                required: true,
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            //password: {
+            //    required: true,
+            //},
+            //confirm_password: {
+            //    required: true,
+            //    equalTo: "#password",
+            //},
+            mobile: {
+                required: true,
+                number: true,
+                //  minlength: 11
+            },
+        },
+
+        messages: {
+            full_name: {
+                required: "User full name field is empty !!",
+            },
+            user_name: {
+                required: "Username field is empty !!",
+            },
+
+            email: {
+                required: "Please enter email address",
+            },
+            //password: {
+            //    required: "User password field is empty !!",
+            //},
+            //confirm_password: {
+            //    required: "User confirm password field is empty !!",
+            //    equalTo: "Enter the same value again",
+            //},
+            mobile: {
+                required: "Please enter your phone number",
+                number: "Please enter your phone number as a numerical value",
+                // minlength: "Please put 11 digit  valid mobile number"
+            },
+        }
+    });
+
+    $("#edit_login_form").validate({
+        rules: {
+            edit_full_name: {
+                required: true,
+            },
+            edit_user_name: {
+                required: true,
+            },
+            edit_email: {
+                required: true,
+                email: true
+            },
+            edit_mobile: {
+                required: true,
+                number: true,
+                //minlength: 11
+            },
+        },
+
+        messages: {
+            edit_full_name: {
+                required: "User full name field is empty !!",
+            },
+            edit_user_name: {
+                required: "Username field is empty !!",
+            },
+
+            edit_email: {
+                required: "Please enter email address",
+            },
+            edit_mobile: {
+                required: "Please enter your phone number",
+                number: "Please enter your phone number as a numerical value",
+                // minlength: "Please put 11 digit  valid mobile number"
+            },
+        }
+    });
+</script>
+
+@*edit user data function*@
+<script>
+    // User edit Function
+    function editUser(rowNum) {
+        var table = $('#table_data').DataTable();
+        var info = table.page.info();
+        var pageLength = info.length;
+        var data = table.rows().data();
+
+        for (var i = 1; i <= pageLength; i++) {
+            if ($('#table_data')[0].rows[i].cells[12].children[0].value == rowNum) {
+                rowNum = i;
+                break;
+            }
+        }
+
+        var cells = $('#table_data')[0].rows[rowNum].cells;
+
+        $('#user_id').val(cells[0].children[0].value);
+        $('#edit_full_name').val(cells[1].children[0].value);
+        $('#edit_user_name').val(cells[2].children[0].value);
+        $('#edit_email').val(cells[3].children[0].value);
+        $('#edit_mobile').val(cells[4].children[0].value);
+        $('#edit_user_role').val(cells[5].children[0].value);
+        $('#edit_user_type').val(cells[7].children[0].value);
+        $('#edit_org_name').val(cells[9].children[0].value);
+        $('#editing_row').val(rowNum);
+
+        $("select").select2();
+    }
+</script>
+
+@*save user data function*@
+<script>
+    $("#saveUser").click(function () {
+        if ($("#login_form").valid()) {
+            var rowStatus = 1;
+            var fullName = $('#full_name').val();
+            var userName = $('#user_name').val();
+            var userEmail = $('#email').val();
+            var roleName = $('#user_role :selected').val();
+            var userPassword = $('#password').val();
+            var userConPassword = $('#confirm_password').val();
+            var mobileNo = $('#mobile').val();
+            var userType = $('#user_type :selected').val();
+            var emp_code = $('#emp_code :selected').val();
+            var orgName = $('#org_name :selected').val();
+            var users = $('#user_code').val();
+            isPasswordValid = validatePassword();
+
+            if (userType == '') {
+                swal('Please select user type !!');
+            }
+            else if (userType == '2' && emp_code == '') {
+                swal('Please select employee name !!');
+            }
+            else if (roleName == '') {
+                swal('Please select user role !!');
+            }
+            else if (userPassword == '') {
+                swal('Please enter new password !!');
+            }
+            else if (!isPasswordValid) {
+                event.preventDefault(); // Prevent form submission if validation fails
+                swal("Password does not meet the requirements.");
+            }
+            else if (userConPassword == '') {
+                swal('Please retype your password !!');
+            }
+
+            else if (userPassword != userConPassword) {
+                swal('Password does not match !!');
+            }
+
+            
+            else {
+                $.ajax({
+                    url: '/Users/SaveUsers',
+                    type: 'POST',
+                    dataType: "json",
+                    traditional: true,
+                    data: {
+                        'fullName': fullName,
+                        'userName': userName,
+                        'userEmail': userEmail,
+                        'userPassword': userPassword,
+                        'roleName': roleName,
+                        'userType': userType,
+                        'mobileNo': mobileNo,
+                        'orgName': orgName,
+                        'rowStatus': rowStatus,
+                        'users': users
+
+                    },
+                    beforeSend: function () {
+                        $("#loader").modal("show");
+
+                    },
+                    success: function (result) {
+                        $("#loader").modal("hide");
+                        swal({
+                            title: result[0],
+                            type: "success",
+                            icon: "success",
+                            showLoaderOnConfirm: true
+                        },
+                            function () {
+                                if (result[2] == "1") {
+                                    $("#loader").modal("show");
+                                    location.reload(true);
+                                }
+                            }
+                        );
+                        $("h2").css({ color: result[1] });
+                    },
+                    error: function () {
+                        $("#loader").modal("hide");
+                        swal("error");
+                    }
+                });
+            }
+
+
+        }
+        return false;
+
+    });
+
+    $("#updateUser").click(function () {
+        if ($("#edit_login_form").valid()) {
+            var rowStatus = 2;
+            var userId = $('#user_id').val();
+            var fullName = $('#edit_full_name').val();
+            var userName = $('#edit_user_name').val();
+            var userEmail = $('#edit_email').val();
+            var roleName = $('#edit_user_role').val();
+            var mobileNo = $('#edit_mobile').val();
+            var userType = $('#edit_user_type').val();
+            var orgName = $('#edit_org_name').val();
+            var users = $('#user_code').val();
+
+            if (roleName == '') {
+                swal('Please select user role !!');
+            }
+            else if (userType == '') {
+                swal('Please select user type !!');
+            }
+            else {
+                //ajax passing data to controller
+                $.ajax({
+                    url: '/Users/UpdateUsers',
+                    type: 'POST',
+                    dataType: "json",
+                    traditional: true,
+                    data: {
+                        'userId': userId,
+                        'fullName': fullName,
+                        'userName': userName,
+                        'userEmail': userEmail,
+                        'roleName': roleName,
+                        'userType': userType,
+                        'mobileNo': mobileNo,
+                        'orgName': orgName,
+                        'rowStatus': rowStatus,
+                        'users': users
+
+                    },
+                    beforeSend: function () {
+                        $("#loader").modal("show");
+
+                    },
+                    success: function (result) {
+                        $("#loader").modal("hide");
+                        swal({
+                            title: result[0],
+                            type: "success",
+                            icon: "success",
+                            showLoaderOnConfirm: true
+                        },
+                            function () {
+                                if (result[2] == "1") {
+                                    $("#loader").modal("show");
+                                    location.reload(true);
+                                }
+                            }
+                        );
+                        $("h2").css({ color: result[1] });
+                    },
+                    error: function () {
+                        $("#loader").modal("hide");
+                        swal("error");
+                    }
+                });
+            }
+
+
+        }
+        return false;
+
+    });
+
+</script>
+
+@*superplaceholder user name and email*@
+<script>
+    superplaceholder({
+        el: mobile,
+        sentences: ['017XXXXXXXX', '018XXXXXXXX', '015XXXXXXXX', '019XXXXXXXX', '016XXXXXXXX'],
+        options: {
+            letterDelay: 80,
+            loop: true,
+            onBlurAction: false
+        }
+    })
+
+    superplaceholder({
+        el: email,
+        sentences: ['iqbal@gmail.com', 'iqbal@yahoo.com', 'iqbal@ap.com.bd'],
+        options: {
+            letterDelay: 80,
+            loop: true,
+            onBlurAction: false
+        }
+    })
+
+    superplaceholder({
+        el: edit_mobile,
+        sentences: ['017XXXXXXXX', '018XXXXXXXX', '015XXXXXXXX', '019XXXXXXXX', '016XXXXXXXX'],
+        options: {
+            letterDelay: 80,
+            loop: true,
+            onBlurAction: false
+        }
+    })
+
+    superplaceholder({
+        el: edit_email,
+        sentences: ['iqbal@gmail.com', 'iqbal@yahoo.com', 'iqbal@srl.com.bd'],
+        options: {
+            letterDelay: 80,
+            loop: true,
+            onBlurAction: false
+        }
+    })
+</script>
+
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+<style>
+    .popup {
+        position: absolute;
+        left: 15px;
+        top: 0;
+        width: 97.3%;
+        display: none;
+        z-index: 1000;
+    }
+
+        .popup > .select2 {
+            width: 100%;
+        }
+
+    .shown {
+        display: block !important;
+    }
+
+    .show_text {
+        background: none !important;
+        border: none !important;
+    }
+    /* The message box is shown when the user clicks on the password field */
+    #message {
+        display: none;
+        background: #f1f1f1;
+        color: #000;
+        position: relative;
+        padding: 20px;
+        margin-top: 10px;
+        width: 337px;
+        margin-left: 210px;
+        height: 300px;
+        margin-bottom: 10px;
+    }
+
+        #message p {
+            padding: 10px 35px;
+            font-size: 14px;
+        }
+
+    /* Add a green text color and a checkmark when the requirements are right */
+    p.valid {
+        color: green;
+    }
+
+        p.valid:before {
+            position: relative;
+            left: -35px;
+            content: "✔";
+        }
+
+    /* Add a red text color and an "x" when the requirements are wrong */
+    p.invalid {
+        color: red;
+    }
+
+        p.invalid:before {
+            position: relative;
+            left: -35px;
+            content: "✖";
+        }
+
+    .password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .eye-image-error {
+        position: absolute;
+        right: 20px;
+        top: 31%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        width: 20px;
+        height: 17px;
+        opacity: 35%;
+    }
+
+    .eye-image {
+        position: absolute;
+        right: 20px;
+        top: 48%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        width: 20px;
+        height: 17px;
+        opacity: 35%;
+    }
+
+    .eye-image-error2 {
+        position: absolute;
+        right: 20px;
+        top: 31%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        width: 20px;
+        height: 17px;
+        opacity: 35%;
+    }
+
+    .eye-image2 {
+        position: absolute;
+        right: 20px;
+        top: 48%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        width: 20px;
+        height: 17px;
+        opacity: 35%;
+    }
+</style>

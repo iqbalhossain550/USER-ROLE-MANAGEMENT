@@ -1,0 +1,312 @@
+﻿@using System.Data
+@using System.Collections
+@using Connection
+@using System.Data
+@using System.Collections
+@using Connection
+@using USERMANAGEMENT.Models
+@*@using USERMANAGEMENT.Models.SetUp*@
+@using USERMANAGEMENT.Models.UserManagement
+@{
+
+    List<UsersRoleModel> usersRoleList = new List<UsersRoleModel>();
+
+    if (ViewBag.usersRoleList != null)
+    {
+        usersRoleList = ViewBag.usersRoleList;
+    }
+
+    string userCode = string.Empty;
+    DataTable dtLoginData = new DataTable();
+
+    if (Session["dtLoginData"] != null)
+    {
+        dtLoginData = (DataTable)Session["dtLoginData"];
+    }
+
+    if (dtLoginData.Rows.Count > 0)
+    {
+        ViewBag.userCode = Convert.ToString(dtLoginData.Rows[0]["USER_CODE"]);
+    }
+
+    ViewBag.Title = "Role Assign";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="main-content">
+    <div class="main-content-inner">
+        <input type="hidden" id="user_code" value="@(ViewBag.userCode)">
+        <div class="page-content">
+            <div class="page-header">
+                <h1>
+                    User Role Assign
+                    <small>
+                        <i class="ace-icon fa fa-angle-double-right"></i>
+                        User Role Assign Entry
+                    </small>
+                </h1>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label no-padding-right requiredicon" for="user_role"> User Role: </label>
+                            <div class="col-sm-7">
+                                <select name="user_role" id="user_role" class="col-xs-12 col-sm-12 user_role select_search">
+                                    <option value=""> Select User Role</option>
+                                    @{
+                                        for (int i = 0; i < usersRoleList.Count; i++)
+                                        {
+                                            <option value="@usersRoleList[i].ROLE_ID">@usersRoleList[i].ROLE_DESCR</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <button type="submit" class="btn btn-sm btn-success" id="saveRoleAssign"><i class="fa fa-check-square-o"></i> Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-3 col-sm-offset-2">
+                    <h5 class="text-danger">Unassign Menu</h5>
+                    <input type="text" name="unAssignMenuSearch" id="unAssignMenuSearch" class="col-sm-12" placeholder="Filter unassign menu" style="margin-bottom:5px;">
+                    <select id="unAssignMenuSelect" class="form-control" multiple="" style="height:200px;overflow-y:scroll;border-radius: 0px;"></select>
+                </div>
+
+                <div class="col-sm-1 text-center" style="margin-top:105px;">
+                    <button id="btnRoleAssignAdd"><i class="fa fa-plus"></i></button>
+                    <button id="btnRoleAssignRemove"><i class="fa fa-minus"></i></button>
+                </div>
+
+                <div class="col-sm-3">
+                    <h5 class="text-success">Already Assigned Menu</h5>
+                    <input type="text" name="assignMenuSearch" id="assignMenuSearch" class="col-sm-12" placeholder="Filter assign menu" style="margin-bottom:5px;">
+                    <select id="assignMenuSelect" class="form-control" multiple="" style="height:200px;overflow-y:scroll;border-radius: 0px;"></select>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        $("#user_role").change(function () {
+            var roleId = $('#user_role :selected').val();
+            SetUnAssignedMenu(roleId);
+            SetAssignedMenu(roleId);
+        });
+
+        function SetUnAssignedMenu(roleId) {
+            $.ajax({
+                url: '/UsersRoleAssign/UnAssignedMenu',
+                type: 'POST',
+                data: { 'roleId': roleId },
+                success: function (data) {
+                    if (data != '') {
+                        var markup = "";
+                        for (var x = 0; x < data.length; x++) {
+                            markup += "<option value=" + data[x].MENU_ITEM_ID + ">" + data[x].MENU_NAME + "</option>";
+                        }
+                        $('#unAssignMenuSelect').html(markup).show();
+
+                        $.fn.filterByText = function (textBox) {
+                            return this.each(function () {
+                                var select = this;
+                                var options = [];
+                                $(select).find('option').each(function () {
+                                    options.push({
+                                        value: $(this).val(),
+                                        text: $(this).text()
+                                    });
+                                });
+                                $(select).data('options', options);
+
+                                $(textBox).bind('change keyup', function () {
+                                    var options = $(select).empty().data('options');
+                                    var search = $.trim($(this).val());
+                                    var regex = new RegExp(search, "gi");
+
+                                    $.each(options, function (i) {
+                                        var option = options[i];
+                                        if (option.text.match(regex) !== null) {
+                                            $('#unAssignMenuSelect').append(
+                                                $('<option>').text(option.text).val(option.value)
+                                            );
+                                        }
+                                    });
+                                });
+                            });
+                        };
+
+                        $(function () {
+                            $('#unAssignMenuSelect').filterByText($('#unAssignMenuSearch'));
+                        });
+                    }
+                    else {
+                        var markup = "";
+                        $('#unAssignMenuSelect').html(markup).show();
+                    }
+                },
+                error: function () {
+                    swal("error");
+                }
+            });
+        }
+
+        function SetAssignedMenu(roleId) {
+            $.ajax({
+                url: '/UsersRoleAssign/AssignedMenu',
+                type: 'POST',
+                data: { 'roleId': roleId },
+                success: function (data) {
+                    if (data != '') {
+                        var markup = "";
+                        for (var x = 0; x < data.length; x++) {
+                            markup += "<option value=" + data[x].MENU_ITEM_ID + ">" + data[x].MENU_NAME + "</option>";
+                        }
+                        $('#assignMenuSelect').html(markup).show();
+
+                        $.fn.filterByText = function (textBox) {
+                            return this.each(function () {
+                                var select = this;
+                                var options = [];
+                                $(select).find('option').each(function () {
+                                    options.push({
+                                        value: $(this).val(),
+                                        text: $(this).text()
+                                    });
+                                });
+                                $(select).data('options', options);
+
+                                $(textBox).bind('change keyup', function () {
+                                    var options = $(select).empty().data('options');
+                                    var search = $.trim($(this).val());
+                                    var regex = new RegExp(search, "gi");
+
+                                    $.each(options, function (i) {
+                                        var option = options[i];
+                                        if (option.text.match(regex) !== null) {
+                                            $('#assignMenuSelect').append(
+                                                $('<option>').text(option.text).val(option.value)
+                                            );
+                                        }
+                                    });
+                                });
+                            });
+                        };
+
+                        $(function () {
+                            $('#assignMenuSelect').filterByText($('#assignMenuSearch'));
+                        });
+                    }
+                    else {
+                        var markup = "";
+                        $('#assignMenuSelect').html(markup).show();
+                    }
+                },
+                error: function () {
+                    swal("error");
+                }
+            });
+        }
+
+    });
+</script>
+
+<script>
+    $('#btnRoleAssignAdd').click(function () {
+        return !$('#unAssignMenuSelect option:selected').remove().appendTo('#assignMenuSelect');
+    });
+    $('#btnRoleAssignRemove').click(function () {
+        return !$('#assignMenuSelect option:selected').remove().appendTo('#unAssignMenuSelect');
+    });
+</script>
+
+<script>
+    $(document).ready(function ($) {
+
+        // User Role Assign Save Data
+        $("#saveRoleAssign").click(function () {
+
+            var roleId = $('#user_role :selected').val();
+
+            if (roleId == '') {
+                swal("Please select user role");
+            }
+            else {
+
+                var userCode = $('#user_code').val();
+
+                var menuItemId;
+                var i = 0;
+
+                $('#assignMenuSelect option').each(function () {
+                    if (i == 0) {
+                        menuItemId = $(this).val();
+                    }
+                    else {
+                        menuItemId += "~" + $(this).val();
+                    }
+
+                    i++;
+                });
+
+                $.ajax({
+                    url: '/UsersRoleAssign/SaveData',
+                    type: 'POST',
+                    dataType: "json",
+                    traditional: true,
+                    data: { 'roleId': roleId, 'userCode': userCode, 'menuItemId': menuItemId },
+                    beforeSend: function () {
+                        $("#loader").modal("show");
+                    },
+                    success: function (result) {
+                        $("#loader").modal("hide");
+                        if (result[2] == "1") {
+                            swal({
+                                title: result[0],
+                                type: "success",
+                                icon: "success",
+                                showLoaderOnConfirm: true
+                            },
+                                function () {
+                                    $("#loader").modal("show");
+                                    location.reload(true);
+                                }
+                            );
+                        }
+                        else {
+                            swal({
+                                title: result[0],
+                                type: "error",
+                                icon: "error",
+                                showLoaderOnConfirm: true
+                            },
+                                function () {
+                                    $("#loader").modal("hide");
+                                }
+                            );
+                        }
+                        $("h2").css({ color: result[1] });
+                    },
+                    error: function () {
+                        $("#loader").modal("hide");
+                        swal("error");
+                    }
+                });
+
+            }
+
+        });
+
+    });
+</script>
